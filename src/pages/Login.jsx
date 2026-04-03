@@ -15,10 +15,15 @@ export default function Login() {
   async function handleLogin(e) {
     e.preventDefault()
     try {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(), 60000); // wait 60 sec for Render wakeup
+
       const res = await fetch(`${API}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, password: form.password })
+        body: JSON.stringify({ email: form.email, password: form.password }),
+        signal: controller.signal
+
       })
       const data = await res.json()
       if (!res.ok) return setMsg({ text: data.message, type: 'error' })
@@ -32,17 +37,30 @@ export default function Login() {
     e.preventDefault()
     if (form.password.length < 6) return setMsg({ text: 'Password must be at least 6 characters', type: 'error' })
     try {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(), 60000);
+
       const res = await fetch(`${API}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: form.name, email: form.email, password: form.password })
+        body: JSON.stringify({ name: form.name, email: form.email, password: form.password }),
+        signal: controller.signal
       })
       const data = await res.json()
-      if (!res.ok) return setMsg({ text: data.message, type: 'error' })
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
-      navigate('/')
-    } catch { setMsg({ text: 'Server error. Please try again.', type: 'error' }) }
+
+      if (!res.ok) {
+        return setMsg({ text: data.message, type: 'error' })
+      }
+
+// ✅ Registration success (no token yet)
+      setMsg({ text: "Account created successfully! Please login.", type: 'success' })
+
+// switch to login tab
+      setIsLogin(true)
+
+// clear form
+      setForm({ name: "", email: "", password: "" })
+      } catch { setMsg({ text: 'Server error. Please try again.', type: 'error' }) }
   }
 
   return (

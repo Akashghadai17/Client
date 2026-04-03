@@ -3,10 +3,13 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    outDir: 'build'
+  },
   server: {
     proxy: {
-      '/api': 'https://backend-88w6.onrender.com',
-      '/uploads': 'https://backend-88w6.onrender.com'
+      '/api': 'https://prinify-be.onrender.com',
+      '/uploads': 'https://prinify-be.onrender.com'
     }
   }
 })
